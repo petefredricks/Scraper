@@ -8,6 +8,7 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
+var cp = require("child_process");
 
 var app = express();
 
@@ -42,11 +43,15 @@ function checkPage() {
 
 		ph.createPage( function( err, page ) {
 
-			setInterval( function() {
+			var int = setInterval( function() {
 
-				page.open( 'http://localhost:8080/app/login', function( err, status ) {
+				page.open( 'http://www.lollapalooza.com/tickets/', function( err, status ) {
 
-					if ( status == 'success' ) {
+					if ( status !== 'success' ) {
+						console.log( new Date() + ': problem'.yellow );
+					}
+					else {
+						console.log( new Date() + ': checking...'.green );
 						page.includeJs( '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js' , function( err ) {
 
 							// jQuery Loaded
@@ -54,13 +59,17 @@ function checkPage() {
 								return $( '#ticket-6904' ).hasClass( 'ticket--offsale' );
 							}, function( err,result ) {
 								if ( !result ) {
-									console.log( 'BUY THE FUCKING TICKETS!!!'.red );
+									clearInterval( int );
+									ph.exit();
+									cp.exec( 'open /Applications/Google\\ Chrome.app/ "http://www.lollapalooza.com/tickets/"', function() {
+										console.log( 'BUY THE FUCKING TICKETS!!!'.red );
+									});
 								}
 							});
 						});
 					}
 				});
-			}, 3000 );
+			}, 30000 );
 		});
 	});
 }
