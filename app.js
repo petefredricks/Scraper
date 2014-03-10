@@ -56,7 +56,7 @@ function checkPage() {
 
 							// jQuery Loaded
 							page.evaluate( function() {
-								return $( '#ticket-6904' ).hasClass( 'ticket--offsale' );
+								return $( '#ticket-6904' ).hasClass( 'ticket--offsale' ) && $('.ticket' ).length === 7
 							}, function( err,result ) {
 								if ( !result ) {
 									clearInterval( int );
