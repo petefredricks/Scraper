@@ -15,6 +15,8 @@ var app = express();
 var phantom = require( 'node-phantom-simple' );
 var async = require( 'async' );
 var colors = require( 'colors' );
+var url = 'http://www.lollapalooza.com/tickets/';
+//var url = 'http://localhost:8080/app/login';
 
 // all environments
 app.set('port', process.env.PORT || 8888);
@@ -45,7 +47,7 @@ function checkPage() {
 
 			var int = setInterval( function() {
 
-				page.open( 'http://www.lollapalooza.com/tickets/', function( err, status ) {
+				page.open( url, function( err, status ) {
 
 					if ( status !== 'success' ) {
 						console.log( new Date() + ': problem'.yellow );
@@ -57,7 +59,7 @@ function checkPage() {
 							// jQuery Loaded
 							page.evaluate( function() {
 								return $( '#ticket-6904' ).hasClass( 'ticket--offsale' ) && $('.ticket' ).length === 7
-							}, function( err,result ) {
+							}, function( err, result ) {
 								if ( !result ) {
 									clearInterval( int );
 									ph.exit();
@@ -76,8 +78,4 @@ function checkPage() {
 
 checkPage();
 
-
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
+console.log( 'Scraper started!'.green );
