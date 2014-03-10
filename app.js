@@ -15,7 +15,7 @@ var app = express();
 var phantom = require( 'node-phantom-simple' );
 var async = require( 'async' );
 var colors = require( 'colors' );
-var url = 'http://www.lollapalooza.com/tickets/';
+//var url = 'http://www.lollapalooza.com/tickets/';
 //var url = 'http://localhost:8080/app/login';
 
 // all environments
@@ -41,29 +41,42 @@ app.get('/users', user.list);
 
 function checkPage() {
 
+	var currentPage = 'home';
+
 	phantom.create(function( err, ph ) {
 
 		ph.createPage( function( err, page ) {
 
 			var int = setInterval( function() {
 
+				var url = currentPage == 'home' ? 'http://www.lollapalooza.com/' : 'http://www.lollapalooza.com/tickets/';
+
 				page.open( url, function( err, status ) {
 
+					var msg;
+
 					if ( status !== 'success' ) {
-						console.log( new Date() + ': problem'.yellow );
+						msg = 'problem ' + currentPage + '...';
+						console.log( new Date() + ': ' + msg.yellow );
 					}
 					else {
-						console.log( new Date() + ': checking...'.green );
+						msg = 'checking ' + currentPage + '...';
+						console.log( new Date() + ': ' + msg.green );
 						page.includeJs( '//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js' , function( err ) {
 
 							// jQuery Loaded
 							page.evaluate( function() {
-								return $( '#ticket-6904' ).hasClass( 'ticket--offsale' ) && $('.ticket' ).length === 7
+
+								return $( '*[class$="--onsale"]' ).length !== 0;
+
 							}, function( err, result ) {
-								if ( !result ) {
+
+								currentPage = currentPage === 'home' ? 'tickets' : 'home';
+
+								if ( result ) {
 									clearInterval( int );
 									ph.exit();
-									cp.exec( 'open /Applications/Google\\ Chrome.app/ "http://www.lollapalooza.com/tickets/"', function() {
+									cp.exec( 'open /Applications/Google\\ Chrome.app/ "' + url + '"', function() {
 										console.log( 'BUY THE FUCKING TICKETS!!!'.red );
 									});
 								}
@@ -71,7 +84,7 @@ function checkPage() {
 						});
 					}
 				});
-			}, 30000 );
+			}, 15000 );
 		});
 	});
 }
